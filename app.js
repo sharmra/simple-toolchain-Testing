@@ -66,7 +66,7 @@ io.on('connection', socket => {
 			})
 			.catch(err => console.log(err))
 	})
-	socket.on('clientMessage', async (msg, msgCallback) => {
+	socket.on('clientMessage', (msg, msgCallback) => {
 		rqst.get(
 			{
 				json: true,
