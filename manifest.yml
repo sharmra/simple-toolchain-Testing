@@ -1,0 +1,5 @@
+---
+applications:
+  - name: tierabot-demo
+    host: tierabot-demo
+    memory: 256M
