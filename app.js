@@ -26,9 +26,9 @@ const tieraAssistant = appEnv.services.conversation[0].credentials
 
 // Set up Assistant service wrapper.
 var service = new AssistantV1({
-	iam_apikey: tieraAssistant.iam_apikey,
+	iam_apikey: tieraAssistant.apikey,
 	url: tieraAssistant.url,
-	version: tieraAssistant.version
+	version: "2019-04-16"
 })
 
 var workspace_id = '96ceb624-7531-4103-b461-5570e9666869' // replace with workspace ID
