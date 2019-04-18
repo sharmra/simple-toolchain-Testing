@@ -20,9 +20,8 @@ const appEnv = cfenv.getAppEnv(appEnvOpts)
 app.get('/', (req, res) => {
 	res.send(appEnv)
 })
-console.log(appEnv)
-console.log(appEnv.getServiceCreds('Tiera ChatBot'))
-const tieraAssistant = appEnv.services.conversation[0].credentials
+
+const tieraAssistant = appEnv.getServiceCreds('Tiera ChatBot')
 
 // Set up Assistant service wrapper.
 var service = new AssistantV1({
