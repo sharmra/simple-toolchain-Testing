@@ -1,45 +1,82 @@
-const uuid = require('uuid')
-const express = require('express')
-const app = require('express')()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
-const rqst = require('request')
-// try {
-//   var keys = require('./keys.json')
-//   console.log("loaded local keys")
-// } catch (err) {
-//   console.log("no keys file, using zeit now secrets")
-// }
-// const assistant = new AssistantV1({
-//   username: keys ? keys.WATSON_USERNAME : process.env.WATSON_USERNAME,
-//   password: keys ? keys.WATSON_PASSWORD : process.env.WATSON_PASSWORD,
-//   url: 'https://gateway.watsonplatform.net/assistant/api/',
-//   version: '2018-02-16'
-// })
+// Example 2: adds user input and detects intents.
+var express = require('express')
+var http = require('http')
+var app = express()
+var server = http.createServer(app).listen(3000)
+var io = require('socket.io')(server)
+var AssistantV1 = require('watson-developer-cloud/assistant/v1')
+var cfenv = require('cfenv')
+//var dotenv = require('dotenv').config()
 
-app.use(express.static('front-end'))
+/* Here we setup the cloudant stuff to work both locally and on bluemix */
+// load local VCAP configuration  and service credentials
+var vcapLocal
+try {
+	vcapLocal = require('./vcap-local.json')
+	console.log('Loaded local VCAP', vcapLocal)
+} catch (e) {}
+const appEnvOpts = vcapLocal ? {vcap: vcapLocal} : {}
+const appEnv = cfenv.getAppEnv(appEnvOpts)
+console.log(appEnv.getServiceCreds('TieraAssistant'))
 
-function sendToWatson(message) {
-	return new Promise((resolve, reject) => {
-		assistant.message(
+const tieraAssistant = appEnv.getServiceCreds('TieraAssistant')
+
+// Set up Assistant service wrapper.
+var service = new AssistantV1({
+	iam_apikey: tieraAssistant.iam_apikey,
+	url: tieraAssistant.url,
+	version: tieraAssistant.version
+})
+
+var workspace_id = '96ceb624-7531-4103-b461-5570e9666869' // replace with workspace ID
+
+io.on('connection', function(socket) {
+	//send a message to watson and get the response and send the response to the client connected on this event.
+
+	service.message(
+		{
+			workspace_id: workspace_id
+		},
+		function(err, response) {
+			if (err) {
+				console.error(err) // something went wrong
+				socket.emit('disconnected', 'Bot Not available')
+			} else if (response.output.text.length != 0) {
+				socket.contextId = response.context
+				console.log(response.context.conversation_id)
+				socket.emit('server message', response.output.text)
+			}
+		}
+	)
+
+	socket.on('client message', function(message, cb) {
+		service.message(
 			{
-				input: {
-					text: message.text
-				},
-				context: sanitizedContext(message.context) || {},
-				workspace_id: 'cf856554-34a8-427b-9941-7891fd1f84dc'
+				workspace_id: workspace_id,
+				input: {text: message},
+				context: sanitizedContext(socket.contextId)
 			},
-			(err, response) => {
+			function(err, response) {
+				console.log('watson response ', JSON.stringify(response.output))
 				if (err) {
-					reject(err)
-				} else {
-					resolve(response)
+					console.error(err) // something went wrong
+					return
+				}
+
+				// If an intent was detected, log it out to the console.
+				if (response.intents.length > 0) {
+					console.log('Detected intent: #' + response.intents)
+				}
+
+				// Display the output from dialog, if any.
+				if (response.output.length != 0) {
+					socket.contextId = response.context
+					cb(response.output)
 				}
 			}
 		)
 	})
-}
-
+})
 function sanitizedContext(context) {
 	// function to remove all context variables from context, there might not be a context object so we'll try it first!
 	try {
@@ -53,62 +90,3 @@ function sanitizedContext(context) {
 		return {}
 	}
 }
-
-io.on('connection', socket => {
-	console.log('socket connected!', socket.client.id)
-
-	socket.on('greeting', () => {
-		sendToWatson({
-			text: ''
-		})
-			.then(response => {
-				socket.emit('serverMessage', response)
-			})
-			.catch(err => console.log(err))
-	})
-	socket.on('clientMessage', (msg, msgCallback) => {
-		rqst.get(
-			{
-				json: true,
-				url:
-					'https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en&key=223313'
-			},
-			(e, r, b) => {
-				console.log(b)
-				const message = {
-					text: b.quoteText,
-					id: uuid(),
-					timestamp: Date.now(),
-					msgType: 'robot',
-					buttons: [
-						{btnText: 'I agree', id: uuid()},
-						{btnText: 'I disagree', id: uuid()}
-					]
-				}
-				msgCallback(message)
-			}
-		)
-		// msgCallback({ ...msg })
-		// var context = msg.context
-		// sendToWatson({
-		//   text: msg.msgText,
-		//   context: context
-		// })
-		//   .then(response => {
-		//     console.log("watson response ", JSON.stringify(response, null, 2))
-		//     socket.emit('serverMessage', {
-		//       ...response,
-		//       timestamp: format(new Date, 'x')
-		//     })
-		//   })
-		//   .catch(err => console.log(err))
-	})
-	socket.on('disconnect', reason => {
-		console.log('disconnected', reason, socket.client.id)
-		console.log('connnections', Object.keys(io.sockets.sockets).length)
-	})
-})
-
-http.listen(process.env.PORT || 4000, () => {
-	console.log('listening on *:4000')
-})
