@@ -17,7 +17,7 @@ try {
 } catch (e) {}
 const appEnvOpts = vcapLocal ? {vcap: vcapLocal} : {}
 const appEnv = cfenv.getAppEnv(appEnvOpts)
-console.log(appEnv.getServiceCreds('TieraAssistant'))
+console.log("environment", JSON.stringify(appEnv, null, 2) )
 
 // const tieraAssistant = appEnv.getServiceCreds('TieraAssistant')
 
