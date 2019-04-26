@@ -1,14 +1,14 @@
 const nodemailer = require('nodemailer')
 
-let emailCredentials
-try {
-	emailCredentials = require('./email_local.json')
-} catch (e) {
-	throw Error(e)
-}
+// let emailCredentials
+// try {
+// 	emailCredentials = require('./email_local.json')
+// } catch (e) {
+// 	console.error(e)
+// }
 
 function sendEmail(reciever, body) {
-	console.log('sending mail to '+reciever)
+	console.log('sending mail to ' + reciever)
 
 	var transporter = nodemailer.createTransport({
 		host: process.env.SMTP_HOST,
