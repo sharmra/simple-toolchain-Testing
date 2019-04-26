@@ -33,7 +33,7 @@ io.on('connection', function(socket) {
 			return prev.concat(`<li><b>${sender}</b>: ${m.msgText}</li>`)
 		}, '')
 
-		sendEmail(createEmailHtml(html))
+		sendEmail(clientEmail, createEmailHtml(html))
 			.then(message => console.log(message))
 			.catch(e => console.error(e))
 	})

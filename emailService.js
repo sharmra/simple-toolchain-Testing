@@ -7,8 +7,8 @@ try {
 	throw Error(e)
 }
 
-function sendEmail(body) {
-	console.log('sending mail')
+function sendEmail(reciever, body) {
+	console.log('sending mail to '+reciever)
 
 	var transporter = nodemailer.createTransport({
 		host: process.env.SMTP_HOST,
@@ -20,7 +20,7 @@ function sendEmail(body) {
 
 	const mail = {
 		from: 'Tiera ChatBot',
-		to: 'mkaarto@gmail.com',
+		to: reciever,
 		subject: 'Kopio keskustelustasi',
 		html: body
 	}
