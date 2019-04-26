@@ -1,5 +1,6 @@
 node_modules
 keys.json
 .DS_Store
+.env
 vcap-local.json
 email_local.json

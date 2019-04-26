@@ -6,6 +6,7 @@ const io = require('socket.io')(server)
 const AssistantV1 = require('watson-developer-cloud/assistant/v1')
 const cfenv = require('cfenv')
 const nodemailer = require('nodemailer')
+require('dotenv').config()
 
 let vcapLocal
 
@@ -17,12 +18,12 @@ try {
 const appEnvOpts = vcapLocal ? {vcap: vcapLocal} : {}
 const appEnv = cfenv.getAppEnv(appEnvOpts)
 const tieraAssistant = appEnv.getServiceCreds('Tiera ChatBot')
-let emailCredentials
+/* let emailCredentials
 try {
 	emailCredentials = require('./email_local.json')
 } catch (e) {
 	throw Error(e)
-}
+} */
 
 // Set up Assistant service wrapper.
 const service = new AssistantV1({
@@ -34,12 +35,12 @@ const service = new AssistantV1({
 const workspace_id = '96ceb624-7531-4103-b461-5570e9666869' // replace with workspace ID
 function sendEmail(body) {
 	console.log('sending mail')
-
+	
 	var transporter = nodemailer.createTransport({
-		host: emailCredentials.host,
+		host: process.env.SMTP_HOST,
 		auth: {
-			user: emailCredentials.user,
-			pass: emailCredentials.pass
+			user: process.env.SMTP_USER,
+			pass: process.env.SMTP_PASS
 		}
 	})
 
