@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer')
 // 	console.error(e)
 // }
 
-function sendEmail(reciever, body) {
+function sendEmail(reciever, subject, body) {
 	console.log('sending mail to ' + reciever)
 
 	var transporter = nodemailer.createTransport({
@@ -17,11 +17,11 @@ function sendEmail(reciever, body) {
 			pass: process.env.SMTP_PASS
 		}
 	})
-
+console.log(reciever +"----"+subject)
 	const mail = {
 		from: 'Tiera ChatBot',
 		to: reciever,
-		subject: 'Kopio keskustelustasi',
+		subject: subject,
 		html: body
 	}
 

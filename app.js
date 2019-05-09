@@ -27,13 +27,13 @@ io.on('connection', function(socket) {
 			}
 		}
 	)
-	socket.on('send email', ({clientEmail, emailBody}) => {
+	socket.on('send email', ({clientEmail, subject, emailBody}) => {
 		const html = JSON.parse(emailBody).reduce((prev, m) => {
 			const sender = m.msgType === 'client' ? 'Sinä' : 'Watson'
 			return prev.concat(`<li><b>${sender}</b>: ${m.msgText}</li>`)
 		}, '')
 
-		sendEmail(clientEmail, createEmailHtml(html))
+		sendEmail(clientEmail, subject, createEmailHtml(html))
 			.then(message => console.log(message))
 			.catch(e => console.error(e))
 	})
@@ -51,6 +51,7 @@ io.on('connection', function(socket) {
 				}
 				if (response.output.length != 0) {
 					socket.contextId = response.context
+					console.log(response)
 					cb(response)
 				}
 			}
