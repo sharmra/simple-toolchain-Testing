@@ -33,7 +33,7 @@ io.on('connection', function(socket) {
 			return prev.concat(`<li><b>${sender}</b>: ${m.msgText}</li>`)
 		}, '')
 
-		sendEmail(clientEmail, subject, createEmailHtml(html))
+		sendEmail(clientEmail, subject, createEmailHtml(html, clientEmail))
 			.then(message => console.log(message))
 			.catch(e => console.error(e))
 	})
@@ -73,7 +73,7 @@ function sanitizedContext(context) {
 	}
 }
 
-function createEmailHtml(html) {
+function createEmailHtml(html, clientEmail) {
 	return `
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 		<html xmlns="http://www.w3.org/1999/xhtml">
@@ -93,6 +93,7 @@ function createEmailHtml(html) {
 			</style>
 		</head>
 		<body>
+			<p><b>email</b>:${clientEmail}</p>
 			<h1>Kopio keskustelusta</h1>
 			<ul>${html}</ul>
 		</body>
