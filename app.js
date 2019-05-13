@@ -27,15 +27,20 @@ io.on('connection', function(socket) {
 			}
 		}
 	)
-	socket.on('send email', ({clientEmail, subject, emailBody}) => {
+	socket.on('send email', ({clientEmail, ticketEmail, subject, emailBody}) => {
 		const html = JSON.parse(emailBody).reduce((prev, m) => {
 			const sender = m.msgType === 'client' ? 'Sinä' : 'Watson'
 			return prev.concat(`<li><b>${sender}</b>: ${m.msgText}</li>`)
 		}, '')
 
-		sendEmail(clientEmail, subject, createEmailHtml(html, clientEmail))
+		sendEmail(ticketEmail, subject, createEmailHtml(html, clientEmail))
 			.then(message => console.log(message))
 			.catch(e => console.error(e))
+		if(clientEmail != ""){
+			sendEmail(clientEmail, subject, createEmailHtml(html, clientEmail))
+			.then(message => console.log(message))
+			.catch(e => console.error(e))
+		}
 	})
 	socket.on('client message', function(message, cb) {
 		watsonService.message(
