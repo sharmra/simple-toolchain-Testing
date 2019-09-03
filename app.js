@@ -2,7 +2,14 @@ const express = require('express')
 const http = require('http')
 const app = express()
 const server = http.createServer(app).listen(process.env.PORT || 4000)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server,{
+	//path: '/test',
+	//serveClient: false,
+	// below are engine.IO options
+	pingInterval: 10000,
+	//pingTimeout: 30000,
+	//cookie: false
+  })
 const watsonService = require('./watsonService')
 const sendEmail = require('./emailService')
 require('dotenv').config()
