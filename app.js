@@ -7,7 +7,7 @@ const io = require('socket.io')(server,{
 	//serveClient: false,
 	// below are engine.IO options
 	pingInterval: 10000,
-	//pingTimeout: 30000,
+	pingTimeout: 60000,
 	//cookie: false
   })
 const watsonService = require('./watsonService')
@@ -70,18 +70,18 @@ io.on('connection', function(socket) {
 		)
 	})
 	socket.on('reconnect_attempt', () => {
-		console.log("reconnecting....");
+		console.log("***************************************reconnecting....");
 	  });
 	
 	  socket.on('connect_timeout', () => {
-		console.log("timeout occured");
+		console.log("***************************************timeout occured");
 	  });
 	
 	  socket.on('reconnect_error', () => {
-		console.log("reconnect error occured");
+		console.log("***************************************reconnect error occured");
 	  });
 	  socket.on('connect_error', () => {
-		console.log("connect error occured");
+		console.log("***************************************connect error occured");
 	  });
 })
 
