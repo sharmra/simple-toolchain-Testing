@@ -69,6 +69,20 @@ io.on('connection', function(socket) {
 			}
 		)
 	})
+	socket.on('reconnect_attempt', () => {
+		console.log("reconnecting....");
+	  });
+	
+	  socket.on('connect_timeout', () => {
+		console.log("timeout occured");
+	  });
+	
+	  socket.on('reconnect_error', () => {
+		console.log("reconnect error occured");
+	  });
+	  socket.on('connect_error', () => {
+		console.log("connect error occured");
+	  });
 })
 
 function sanitizedContext(context) {
